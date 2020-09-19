@@ -97,6 +97,45 @@ const controller: any = {
             })
         });
         res.send({ parool: posts });
+    },
+    scrapeTelegraafContents: async (req: any, res: any) => {
+        let posts: object[] = [];
+        let latestPosts: object[] = [];
+
+        await axios.get('https://www.telegraaf.nl')
+        .then((res) => {
+            const $: any = cheerio.load(res.data);
+
+            let newsTitle: string = $('.TopStoryBlock__body').find('.TeaserHeadline__text').text();
+            let newsUrl: string = $('.TopStoryBlock__body').find('.TopStoryTeaser__shadow').attr('href');
+
+            newsUrl = `https://telegraaf.nl${newsUrl}`;            
+
+            const post: object = {
+                title: newsTitle,
+                url: newsUrl
+            }
+
+            posts.push(post);
+
+            $('.LatestNewsTeaser__body').each((index: number, el: any) => {
+                let latestNewsTitle: string = $(el).find('.TeaserHeadline__text').text();
+                let latestNewsTime: string = $(el).find('.LatestNewsTeaser__timestamp').text();
+                let latestNewsUrl: string = $(el).find('.TeaserHeadline__link').attr('href');
+
+                latestNewsUrl = `https://telegraaf.nl${latestNewsUrl}`;
+
+                let latestPost: object = {
+                    id: index,
+                    href: latestNewsUrl,
+                    title: latestNewsTitle,
+                    time: latestNewsTime
+                }
+
+                latestPosts.push(latestPost);
+            });
+        });
+        res.send({ telegraaf: { posts, latest: latestPosts }});
     }
 }
 
