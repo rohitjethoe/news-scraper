@@ -28,6 +28,48 @@ const controller: any = {
             });
         });
         res.send({ nos: posts });
+    },
+    scrapeNuContents: async (req: any, res: any) => {
+        let posts: object[] = [];
+        let latestPosts: any[] = [];
+
+        await axios.get('https://www.nu.nl/algemeen')
+        .then((res) => {
+            const $: any = cheerio.load(res.data);
+
+            let newsTitle: string = $('#block-280721').find('.title').html();
+            let newsUrl: string = $('#block-280721').find('a').attr('href');
+            let newsImage: string = $('#block-280721').find('.lazy-unveil').attr('src');        
+        
+            newsUrl = `https://www.nu.nl${newsUrl}`;
+
+            const post: object = {
+                href: newsUrl,
+                title: newsTitle,
+                image: newsImage
+            }
+
+            posts.push(post);
+
+            $('.list__item--timestamp').each((index: number, el: any) => {
+                if (index < 5) {
+                    let latestNewsTitle: string = $(el).find('.item-title__title').text();
+                    let latestNewsUrl: string = $(el).find('.list__link').attr('href');
+                    let latestNewsTime: string = $(el).find('.item-datetime').text();
+                    
+                    latestNewsUrl = `https://www.nu.nl${latestNewsUrl}`;
+                
+                    let latestPost: object = {
+                        href: latestNewsUrl,
+                        title: latestNewsTitle,
+                        time: latestNewsTime
+                    }
+
+                    latestPosts.push(latestPost);
+                }
+            });
+        });
+        res.send({ nu_nl: posts, latest: latestPosts });
     }
 }
 
