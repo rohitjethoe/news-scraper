@@ -8,6 +8,6 @@ app.use(cors());
 app.use(express.json());
 app.use('/', require('./routes/web'));
 app.listen(PORT, () => {
-    const message = `Development Server.\n\nRunning on http://localhost:${PORT}`;
+    const message = `Development Server.\nRunning on http://localhost:${PORT}`;
     console.log(message);
 });
