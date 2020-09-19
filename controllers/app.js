@@ -57,6 +57,28 @@ const controller = {
             });
         });
         res.send({ nu_nl: posts, latest: latestPosts });
+    },
+    scrapeParoolContents: async (req, res) => {
+        let posts = [];
+        await axios_1.default.get('https://www.parool.nl/')
+            .then((res) => {
+            const $ = cheerio.load(res.data);
+            $('.teaser--header-position-vertical-bottom').each((index, el) => {
+                if (index < 3) {
+                    let newsTitle = $(el).find('.teaser__title__value--long').text();
+                    let newsUrl = $(el).attr('href');
+                    let newsImage = $(el).find('.teaser__image--background').attr('src');
+                    newsUrl = `https://www.parool.nl${newsUrl}`;
+                    let post = {
+                        href: newsUrl,
+                        title: newsTitle,
+                        image: newsImage
+                    };
+                    posts.push(post);
+                }
+            });
+        });
+        res.send({ parool: posts });
     }
 };
 module.exports = controller;

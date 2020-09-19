@@ -70,6 +70,33 @@ const controller: any = {
             });
         });
         res.send({ nu_nl: posts, latest: latestPosts });
+    },
+    scrapeParoolContents: async (req: any, res: any) => {
+        let posts: object[] = [];
+
+        await axios.get('https://www.parool.nl/')
+        .then((res) => {
+            const $: any = cheerio.load(res.data);    
+
+            $('.teaser--header-position-vertical-bottom').each((index: number, el: any) => {
+                if (index < 3) {
+                    let newsTitle: string = $(el).find('.teaser__title__value--long').text();
+                    let newsUrl: string = $(el).attr('href');
+                    let newsImage: string = $(el).find('.teaser__image--background').attr('src');
+
+                    newsUrl = `https://www.parool.nl${newsUrl}`;
+
+                    let post: object = {
+                        href: newsUrl,
+                        title: newsTitle,
+                        image: newsImage
+                    };
+
+                    posts.push(post);
+                }
+            })
+        });
+        res.send({ parool: posts });
     }
 }
 

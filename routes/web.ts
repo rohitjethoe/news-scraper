@@ -8,4 +8,6 @@ router.get('/news/nos', (req: any, res: any) => controller.scrapeNosContents(req
 
 router.get('/news/nu_nl', (req: any, res: any) => controller.scrapeNuContents(req, res));
 
+router.get('/news/parool', (req: any, res: any) => controller.scrapeParoolContents(req, res));
+
 module.exports = router;
